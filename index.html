@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CBSE 10th Computer Apps - 100 Question Mega Mock</title>
+    <style>
+        :root { --primary: #2c3e50; --accent: #3498db; --success: #2ecc71; --danger: #e74c3c; --light: #f4f6f7; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--light); display: flex; justify-content: center; min-height: 100vh; margin: 0; padding: 20px; }
+        .container { background: white; width: 100%; max-width: 700px; padding: 2rem; border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); }
+        h1, h2 { text-align: center; color: var(--primary); }
+        .btn { background: var(--accent); color: white; border: none; padding: 12px 24px; font-size: 1rem; cursor: pointer; border-radius: 6px; width: 100%; margin-top: 15px; transition: 0.2s; }
+        .btn:hover { background: #2980b9; }
+        .hide { display: none; }
+        .option-btn { background: #fff; border: 2px solid #e0e0e0; padding: 12px; width: 100%; text-align: left; cursor: pointer; border-radius: 8px; margin-bottom: 10px; transition: 0.2s; font-size: 0.95rem; }
+        .option-btn:hover:not([disabled]) { border-color: var(--accent); background: #f0f8ff; }
+        .option-btn.correct { background: var(--success); color: white; border-color: var(--success); }
+        .option-btn.wrong { background: var(--danger); color: white; border-color: var(--danger); }
+        .stats { display: flex; justify-content: space-between; font-weight: bold; margin-bottom: 15px; color: #555; }
+        .timer-bar { height: 8px; background: #eee; border-radius: 4px; overflow: hidden; margin-bottom: 20px; }
+        .time-left { height: 100%; background: var(--accent); width: 100%; transition: width 1s linear; }
+        .scroll-box { max-height: 60vh; overflow-y: auto; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div id="start-screen">
+        <h1>CBSE Class 10 Mega Test</h1>
+        <h2>Computer Applications (Code 165)</h2>
+        <p style="text-align:center"><strong>100 Questions | All Chapters</strong><br>Networking, HTML, CSS, Cyber Ethics</p>
+        <button class="btn" onclick="startQuiz(25)">Take Short Test (25 Qs)</button>
+        <button class="btn" onclick="startQuiz(50)">Take Half Test (50 Qs)</button>
+        <button class="btn" style="background-color:var(--primary)" onclick="startQuiz(100)">Take Full Board Exam (100 Qs)</button>
+    </div>
+
+    <div id="quiz-screen" class="hide">
+        <div class="stats">
+            <span id="q-progress">Q 1</span>
+            <span id="score-live">Score: 0</span>
+            <span id="timer-text">00:00</span>
+        </div>
+        <div class="timer-bar"><div class="time-left" id="time-bar"></div></div>
+        
+        <h3 id="question-text" style="font-size: 1.2rem; margin-bottom: 20px;">Question...</h3>
+        <div id="options-container"></div>
+        <button class="btn hide" id="next-btn" onclick="nextQuestion()">Next Question</button>
+    </div>
+
+    <div id="result-screen" class="hide" style="text-align: center;">
+        <h1>Test Submitted!</h1>
+        <h2 id="final-score" style="font-size: 3rem;">0</h2>
+        <p id="percentage-display"></p>
+        <div id="feedback-msg"></div>
+        <button class="btn" onclick="location.reload()">Return to Home</button>
+    </div>
+</div>
+
+<script>
+    // --- THE 100 QUESTION BANK ---
+    const questionBank = [
+        // --- NETWORKING (1-25) ---
+        { q: "What connects millions of computers globally forming a network?", o: ["Intranet", "Internet", "LAN", "Extranet"], c: 1 },
+        { q: "Which protocol is used for sending emails?", o: ["POP3", "HTTP", "SMTP", "FTP"], c: 2 },
+        { q: "Which device is required to connect a computer to the Internet via telephone lines?", o: ["Hub", "Switch", "Modem", "Router"], c: 2 },
+        { q: "What does WWW stand for?", o: ["World Wide Web", "World Web Wide", "World Wide Wares", "Wide World Web"], c: 0 },
+        { q: "Which is NOT a web browser?", o: ["Chrome", "Google", "Firefox", "Edge"], c: 1 },
+        { q: "The first page of a website is called the:", o: ["Index Page", "Home Page", "Front Page", "Main Page"], c: 1 },
+        { q: "What is the full form of ISP?", o: ["Internet Service Provider", "Internal Service Provider", "Internet Source Protocol", "Intranet Service Provider"], c: 0 },
+        { q: "Which protocol is used to transfer files over the internet?", o: ["HTTP", "SMTP", "FTP", "TCP"], c: 2 },
+        { q: "What does URL stand for?", o: ["Uniform Resource Locator", "Universal Resource Link", "Uniform Resource Link", "Unified Resource Locator"], c: 0 },
+        { q: "Which network covers a small area like a room or a building?", o: ["WAN", "MAN", "LAN", "PAN"], c: 2 },
+        { q: "Wi-Fi stands for:", o: ["Wireless Fidelity", "Wireless Field", "Wire Fire", "Wireless File"], c: 0 },
+        { q: "HTML pages are read and rendered by:", o: ["Web Server", "Web Browser", "Compiler", "Interpreter"], c: 1 },
+        { q: "Which is a valid domain extension for a government website?", o: [".com", ".edu", ".gov", ".net"], c: 2 },
+        { q: "Which protocol is secure?", o: ["HTTP", "HTTPS", "FTP", "Telnet"], c: 1 },
+        { q: "In an email 'cc' stands for:", o: ["Carbon Copy", "Blind Carbon Copy", "Create Copy", "Cyber Copy"], c: 0 },
+        { q: "A blog is a combination of:", o: ["Web and Log", "Web and Blog", "Basic and Log", "Beta and Log"], c: 0 },
+        { q: "Buying and selling goods over the internet is called:", o: ["Hyper-commerce", "E-commerce", "Cyber-selling", "Net-trade"], c: 1 },
+        { q: "Which of these is a search engine?", o: ["Bing", "Facebook", "Twitter", "Instagram"], c: 0 },
+        { q: "What acts as a barrier between a private network and the internet?", o: ["Antivirus", "Firewall", "Modem", "Switch"], c: 1 },
+        { q: "Which technology allows telephone calls over the Internet?", o: ["VoIP", "HTML", "TCP/IP", "FTP"], c: 0 },
+        { q: "3G, 4G, and 5G are generations of:", o: ["Computer Storage", "Mobile Network", "Monitor Display", "Keyboard Layout"], c: 1 },
+        { q: "An IP address consists of how many bits (IPv4)?", o: ["16", "32", "64", "128"], c: 1 },
+        { q: "Which tag is used to embed a webpage within a webpage?", o: ["<iframe>", "<frame>", "<embed>", "<link>"], c: 0 },
+        { q: "Skype is an example of:", o: ["Web Browser", "Video Conferencing Software", "Search Engine", "Antivirus"], c: 1 },
+        { q: "What is the unique address of a web page called?", o: ["IP", "URL", "DNS", "MAC"], c: 1 },
+
+        // --- HTML BASICS (26-50) ---
+        { q: "HTML stands for:", o: ["Hyper Text Markup Language", "Hyper Tech Make Language", "Hyper Text Made Language", "High Text Markup Language"], c: 0 },
+        { q: "Which tag is the root element of an HTML page?", o: ["<body>", "<head>", "<html>", "<title>"], c: 2 },
+        { q: "Which tag creates a line break?", o: ["<lb>", "<br>", "<break>", "<ln>"], c: 1 },
+        { q: "The title tag is written inside which tag?", o: ["<body>", "<head>", "<html>", "<footer>"], c: 1 },
+        { q: "Which tag creates the largest heading?", o: ["<h6>", "<h1>", "<head>", "<header>"], c: 1 },
+        { q: "Which tag is used to create a paragraph?", o: ["<para>", "<p>", "<text>", "<pg>"], c: 1 },
+        { q: "Which attribute specifies the image source?", o: ["href", "src", "link", "source"], c: 1 },
+        { q: "To create a numbered list, we use:", o: ["<ul>", "<dl>", "<ol>", "<list>"], c: 2 },
+        { q: "To create a bulleted list, we use:", o: ["<ul>", "<ol>", "<li>", "<dl>"], c: 0 },
+        { q: "Which tag creates a horizontal rule (line)?", o: ["<line>", "<hr>", "<br>", "<hl>"], c: 1 },
+        { q: "What is the correct HTML for adding a background color?", o: ["<body bg='red'>", "<body style='background-color:red;'>", "<background>red</background>", "<body color='red'>"], c: 1 },
+        { q: "<b> tag is used for:", o: ["Bold", "Big", "Break", "Background"], c: 0 },
+        { q: "<i> tag is used for:", o: ["Image", "Italic", "Icon", "Item"], c: 1 },
+        { q: "Which character is used to indicate an end tag?", o: ["*", "/", "<", "^"], c: 1 },
+        { q: "Which attribute opens a link in a new tab?", o: ["target='_self'", "target='_blank'", "new='tab'", "window='new'"], c: 1 },
+        { q: "How do you write comments in HTML?", o: ["// Comment", "", "' Comment", "/* Comment */"], c: 1 },
+        { q: "Which tag creates a definition list?", o: ["<dl>", "<dd>", "<dt>", "<ul>"], c: 0 },
+        { q: "The <sub> tag makes text:", o: ["Superscript", "Subscript", "Small", "Strong"], c: 1 },
+        { q: "The <sup> tag makes text:", o: ["Superscript", "Subscript", "Super", "Strong"], c: 0 },
+        { q: "Which element contains the visible page content?", o: ["<head>", "<html>", "<body>", "<meta>"], c: 2 },
+        { q: "Which attribute provides 'tooltip' text when hovering over an element?", o: ["alt", "title", "src", "tooltip"], c: 1 },
+        { q: "Which element is a container for navigation links?", o: ["<nav>", "<link>", "<a>", "<header>"], c: 0 },
+        { q: "The 'alt' attribute is mandatory for which tag to be valid?", o: ["<a>", "<img>", "<table>", "<div>"], c: 1 },
+        { q: "Which tag creates a clickable button?", o: ["<click>", "<button>", "<btn>", "<input type='click'>"], c: 1 },
+        { q: "HTML tags are surrounded by:", o: ["Curly braces", "Angle brackets", "Square brackets", "Round brackets"], c: 1 },
+
+        // --- ADVANCED HTML & TABLES (51-70) ---
+        { q: "Which tag defines a table row?", o: ["<th>", "<td>", "<tr>", "<table>"], c: 2 },
+        { q: "Which tag defines a table header?", o: ["<thead>", "<th>", "<top>", "<head>"], c: 1 },
+        { q: "Which attribute merges two columns?", o: ["rowspan", "colspan", "merge", "combine"], c: 1 },
+        { q: "Which attribute merges two rows?", o: ["rowspan", "colspan", "rowmerge", "span"], c: 0 },
+        { q: "Which tag defines table data/cell?", o: ["<tr>", "<th>", "<td>", "<tf>"], c: 2 },
+        { q: "Cellpadding is the distance between:", o: ["Cells", "Cell content and border", "Two tables", "Border and page edge"], c: 1 },
+        { q: "Cellspacing is the distance between:", o: ["Cells", "Cell content and border", "Text lines", "Rows"], c: 0 },
+        { q: "Which tag is used to create a form?", o: ["<table>", "<form>", "<input>", "<field>"], c: 1 },
+        { q: "Which input type creates a text field?", o: ["type='text'", "type='box'", "type='line'", "type='txt'"], c: 0 },
+        { q: "Which input type is best for passwords?", o: ["text", "secure", "password", "hidden"], c: 2 },
+        { q: "Which input type allows selecting ONLY ONE option from a group?", o: ["checkbox", "radio", "text", "submit"], c: 1 },
+        { q: "Which input type allows selecting MULTIPLE options?", o: ["checkbox", "radio", "button", "list"], c: 0 },
+        { q: "Which tag creates a drop-down list?", o: ["<input>", "<select>", "<option>", "<list>"], c: 1 },
+        { q: "Which tag defines an option in a drop-down list?", o: ["<choice>", "<select>", "<option>", "<item>"], c: 2 },
+        { q: "The 'action' attribute in a form defines:", o: ["Method used", "Where data is sent", "Input type", "Button color"], c: 1 },
+        { q: "Which method sends form data visible in the URL?", o: ["POST", "GET", "SEND", "PUSH"], c: 1 },
+        { q: "Which tag creates a large text input area?", o: ["<input>", "<textarea>", "<textbox>", "<text>"], c: 1 },
+        { q: "Which tag allows audio files?", o: ["<sound>", "<audio>", "<music>", "<mp3>"], c: 1 },
+        { q: "Which tag allows video files?", o: ["<movie>", "<video>", "<film>", "<mp4>"], c: 1 },
+        { q: "The default alignment of content in a table cell is:", o: ["Center", "Right", "Left", "Justify"], c: 2 },
+
+        // --- CSS (71-90) ---
+        { q: "CSS stands for:", o: ["Creative Style Sheets", "Cascading Style Sheets", "Computer Style Sheets", "Colorful Style Sheets"], c: 1 },
+        { q: "Which tag is used to link an external CSS file?", o: ["<script>", "<style>", "<link>", "<css>"], c: 2 },
+        { q: "Which tag is used for internal CSS?", o: ["<style>", "<script>", "<css>", "<link>"], c: 0 },
+        { q: "Which property changes the text color?", o: ["text-color", "font-color", "color", "fgcolor"], c: 2 },
+        { q: "Which selector selects an element by its ID?", o: [".", "#", "*", "@"], c: 1 },
+        { q: "Which selector selects elements by their class?", o: [".", "#", "*", "&"], c: 0 },
+        { q: "How do you select all p elements?", o: ["p", ".p", "#p", "*p"], c: 0 },
+        { q: "Which property controls the text size?", o: ["text-size", "font-size", "text-height", "size"], c: 1 },
+        { q: "Which property changes the font face?", o: ["font-family", "font-style", "font-weight", "text-font"], c: 0 },
+        { q: "Which property makes text bold?", o: ["font-weight", "font-style", "text-align", "text-decoration"], c: 0 },
+        { q: "Which property controls the background color?", o: ["color", "background-color", "bgcolor", "back-color"], c: 1 },
+        { q: "How do you remove underlines from links?", o: ["text-decoration: none", "text-style: no-line", "underline: none", "font-decoration: none"], c: 0 },
+        { q: "Which property creates space INSIDE the border?", o: ["margin", "padding", "spacing", "border-spacing"], c: 1 },
+        { q: "Which property creates space OUTSIDE the border?", o: ["margin", "padding", "spacing", "gap"], c: 0 },
+        { q: "The default value of the 'position' property is:", o: ["relative", "fixed", "absolute", "static"], c: 3 },
+        { q: "Which property specifies the border width, style, and color?", o: ["border", "border-style", "border-width", "All of the above"], c: 0 },
+        { q: "Which color code represents white?", o: ["#000000", "#FFFFFF", "#FF0000", "#111111"], c: 1 },
+        { q: "Which CSS syntax is correct?", o: ["body:color=black;", "{body;color:black}", "body {color: black;}", "body = color: black"], c: 2 },
+        { q: "To center align text, use:", o: ["text-align: center", "align: center", "font-align: center", "margin: center"], c: 0 },
+        { q: "Which is the universal selector?", o: ["#", ".", "*", "body"], c: 2 },
+
+        // --- CYBER ETHICS & MISC (91-100) ---
+        { q: "Software that is free to use but source code is hidden is:", o: ["Open Source", "Freeware", "Shareware", "Proprietary"], c: 1 },
+        { q: "Software provided for a trial period is called:", o: ["Freeware", "Shareware", "Adware", "Spyware"], c: 1 },
+        { q: "Copying someone else's work and claiming it as yours is:", o: ["Phishing", "Plagiarism", "Spamming", "Hacking"], c: 1 },
+        { q: "The right of an owner over their creation is called:", o: ["IPR", "CPR", "UPR", "GPR"], c: 0 },
+        { q: "Which license allows users to modify and redistribute code?", o: ["Proprietary", "Open Source", "Freeware", "Shareware"], c: 1 },
+        { q: "A gap between those who have access to technology and those who don't is:", o: ["Digital Divide", "Digital Bridge", "Cyber Gap", "Tech Split"], c: 0 },
+        { q: "Unsolicited bulk emails are called:", o: ["Trash", "Drafts", "Spam", "Virus"], c: 2 },
+        { q: "Which creates a secure connection for online transactions?", o: ["HTTP", "SSL/HTTPS", "FTP", "SMTP"], c: 1 },
+        { q: "Netiquette refers to:", o: ["Network speed", "Internet Etiquette", "Network wiring", "Web designing"], c: 1 },
+        { q: "Which is NOT a cyber crime?", o: ["Hacking", "Phishing", "Cyber Stalking", "Online Shopping"], c: 3 }
+    ];
+
+    // --- LOGIC ---
+    let currentQuestions = [];
+    let currentIndex = 0;
+    let score = 0;
+    let timerInterval;
+    let totalTime = 0;
+    let timeRemaining = 0;
+
+    function startQuiz(amount) {
+        document.getElementById('start-screen').classList.add('hide');
+        document.getElementById('quiz-screen').classList.remove('hide');
+        
+        // Shuffle and Slice
+        let shuffled = [...questionBank].sort(() => 0.5 - Math.random());
+        currentQuestions = shuffled.slice(0, amount);
+        
+
+        // Set Time: 1 minute per question roughly
+        totalTime = amount * 60; 
+        timeRemaining = totalTime;
+        
+        loadQuestion();
+        startTimer();
+    }
+
+    function loadQuestion() {
+        if (currentIndex >= currentQuestions.length) {
+            endQuiz();
+            return;
+        }
+
+        const q = currentQuestions[currentIndex];
+        document.getElementById('question-text').innerText = `${currentIndex + 1}. ${q.q}`;
+        document.getElementById('q-progress').innerText = `Q ${currentIndex + 1}/${currentQuestions.length}`;
+        document.getElementById('score-live').innerText = `Score: ${score}`;
+        
+        const container = document.getElementById('options-container');
+        container.innerHTML = '';
+        document.getElementById('next-btn').classList.add('hide');
+
+        q.o.forEach((opt, i) => {
+            const btn = document.createElement('button');
+            btn.classList.add('option-btn');
+            btn.innerText = opt;
+            btn.onclick = () => checkAnswer(btn, i, q.c);
+            container.appendChild(btn);
+        });
+    }
+
+    function checkAnswer(btn, selected, correct) {
+        const buttons = document.querySelectorAll('.option-btn');
+        buttons.forEach(b => b.disabled = true);
+
+        if (selected === correct) {
+            btn.classList.add('correct');
+            score++;
+        } else {
+            btn.classList.add('wrong');
+            buttons[correct].classList.add('correct');
+        }
+        document.getElementById('next-btn').classList.remove('hide');
+    }
+
+    function nextQuestion() {
+        currentIndex++;
+        loadQuestion();
+    }
+
+    function startTimer() {
+        timerInterval = setInterval(() => {
+            timeRemaining--;
+            let m = Math.floor(timeRemaining / 60);
+            let s = timeRemaining % 60;
+            document.getElementById('timer-text').innerText = `${m}:${s < 10 ? '0' : ''}${s}`;
+            
+            let percent = (timeRemaining / totalTime) * 100;
+            document.getElementById('time-bar').style.width = percent + "%";
+
+            if (timeRemaining <= 0) endQuiz();
+        }, 1000);
+    }
+
+    function endQuiz() {
+        clearInterval(timerInterval);
+        document.getElementById('quiz-screen').classList.add('hide');
+        document.getElementById('result-screen').classList.remove('hide');
+        document.getElementById('final-score').innerText = `${score} / ${currentQuestions.length}`;
+        
+        let percentage = (score / currentQuestions.length) * 100;
+        document.getElementById('percentage-display').innerText = `${percentage.toFixed(1)}%`;
+        
+        let msg = "";
+        if (percentage >= 90) msg = "Outstanding! You are a topper!";
+        else if (percentage >= 75) msg = "Great job! Just a little more polish needed.";
+        else if (percentage >= 50) msg = "Good effort. Revise HTML tags and Networking protocols.";
+        else msg = "You need to study the textbook thoroughly.";
+        
+        document.getElementById('feedback-msg').innerText = msg;
+    }
+</script>
+</body>
+</html>
